@@ -1,6 +1,6 @@
 ---
 # This playbook sets up etherpad-lite on a server.
-# pass the hosts to install to as an extra variable
+# Based substantially on https://github.com/p2pu/marvin/tree/master/etherpad-lite-install
 
 - name: Ensure repository key for node.js is in place
   apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key state=present
@@ -13,9 +13,8 @@
   with_items:
   - nodejs
 
-- name: Create database user for ownCloud
+- name: Create database user for etherpad-lite
   postgresql_user: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ etherpad_db_username }} password="{{ etherpad_db_password }}" state=present
-
 
 - name: Create database for etherpad-lite
   postgresql_db: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ etherpad_db_database }} owner={{ etherpad_db_username }}
