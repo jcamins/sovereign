@@ -11,17 +11,19 @@
 
   roles:
     - common
-    - mailserver
-    - webmail
+#   - mailserver
+#   - webmail
     - blog
     - ircbouncer
-    - xmpp
+#    - xmpp
     - owncloud
     - vpn
-    - tarsnap
+#    - tarsnap
     - news
     - git
-    - newebe
-    - readlater
+#   - newebe
+#   - readlater
+#   - redmine
     - etherpad-lite
+#   - pastebin
     - monitoring  # Monitoring role should be last. See roles/monitoring/README.md
