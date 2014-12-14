@@ -73,5 +73,8 @@
   command: a2ensite owncloud.conf creates=/etc/apache2/sites-enabled/owncloud.conf
   notify: restart apache
 
+- name: Install owncloud autoconfig
+  template: src=autoconfig.php.j2 dest=/var/www/owncloud/config/autoconfig.php group=www-data owner=www-data
+
 - name: Install ownCloud cronjob
   cron: name="ownCloud" user="www-data" minute="*/5" job="php -f /var/www/owncloud/cron.php > /dev/null"

@@ -1,0 +1,13 @@
+<?php
+$AUTOCONFIG = array(
+    "dbtype"        => "postgres",
+    "dbname"        => "{{ owncloud_db_database }}",
+    "dbuser"        => "{{ owncloud_db_username }}",
+    "dbpass"        => "{{ owncloud_db_password }}",
+    "dbhost"        => "localhost",
+    "dbtableprefix" => "",
+    "adminlogin"    => "{{ main_user_name }}",
+    "adminpass"     => "{{ owncloud_password }}",
+    "directory"     => "/var/www/owncloud/data",
+);
+
