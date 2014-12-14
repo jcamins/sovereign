@@ -58,6 +58,7 @@
   when: ansible_distribution_release == 'trusty'
 
 - include: encfs.yml tags=encfs
+- include: postgres.yml tags=postgres
 - include: users.yml tags=users
 - include: ssl.yml tags=ssl
 - include: ufw.yml tags=ufw
