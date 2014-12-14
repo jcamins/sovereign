@@ -1,0 +1,2 @@
+- name: import sql paste
+  action: shell PGPASSWORD='{{ paste_db_password }}' psql -h localhost -d {{ paste_db_database }} -U {{ paste_db_username }} -f /var/www/paste/paste-postgre.sql --set ON_ERROR_STOP=1

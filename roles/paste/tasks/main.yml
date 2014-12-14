@@ -1,0 +1,4 @@
+---
+
+- include: paste.yml tags=paste
+

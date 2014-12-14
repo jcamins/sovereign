@@ -133,3 +133,10 @@ etherpad_db_username: etherpad
 etherpad_username: "{{ main_user_name }}"
 #etherpad_password: (required)
 #etherpad_session_key: (required)
+
+# paste
+paste_domain: "paste.{{ domain }}"
+paste_db_database: paste
+paste_db_username: paste
+#paste_db_password: (required)
+#paste_salt: (required)

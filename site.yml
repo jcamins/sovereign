@@ -25,5 +25,5 @@
 #   - readlater
 #   - redmine
     - etherpad-lite
-#   - pastebin
+    - paste
     - monitoring  # Monitoring role should be last. See roles/monitoring/README.md
