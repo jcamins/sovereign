@@ -1,0 +1,62 @@
+---
+# This playbook sets up etherpad-lite on a server.
+# pass the hosts to install to as an extra variable
+
+- name: Ensure repository key for node.js is in place
+  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key state=present
+
+- name: Add node.js nodesource repository
+  apt_repository: repo='deb https://deb.nodesource.com/node {{ ansible_distribution_release }} main'
+
+- name: Install Node.js
+  apt: pkg={{ item }} state=installed update_cache=yes
+  with_items:
+  - nodejs
+
+- name: Create database user for ownCloud
+  postgresql_user: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ etherpad_db_username }} password="{{ etherpad_db_password }}" state=present
+
+
+- name: Create database for etherpad-lite
+  postgresql_db: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ etherpad_db_database }} owner={{ etherpad_db_username }}
+
+- name: Create system user for etherpad-lite
+  user: name=etherpad-lite
+
+- name: Check out etherpad-lite code
+  git: repo=https://github.com/ether/etherpad-lite.git dest=/usr/share/etherpad-lite
+
+- name: Install npm dependencies for etherpad-lite
+  command: npm install chdir=/usr/share/etherpad-lite/src creates=/usr/share/etherpad-lite/src/node_modules
+
+- name: Update permissions for etherpad-lite directory
+  command: /bin/chown -R etherpad-lite:etherpad-lite /usr/share/etherpad-lite
+
+- name: Create etherpad-lite log directory
+  file: path=/var/log/etherpad-lite owner=etherpad-lite group=etherpad-lite state=directory
+
+- name: Create etherpad-lite etc directory
+  file: path=/etc/etherpad-lite owner=etherpad-lite group=etherpad-lite state=directory
+
+- name: Create etherpad-lite startup script
+  template: src=etc_init.d_etherpad-lite.j2 dest=/etc/init.d/etherpad-lite mode=0744 owner=root group=root
+
+- name: Add etherpad-lite startup script to defaults
+  command: update-rc.d etherpad-lite defaults
+
+- name: Enable Apache proxy_http module
+  command: a2enmod proxy_http creates=/etc/apache2/mods-enabled/proxy_http.load
+
+- name: Enable Apache proxy module
+  command: a2enmod proxy creates=/etc/apache2/mods-enabled/proxy.load
+
+- name: Create etherpad-lite configuration file
+  template: src=etc_etherpad-lite_settings.json.j2 dest=/etc/etherpad-lite/settings.json mode=0640 owner=etherpad-lite group=root
+  notify: restart etherpad-lite
+
+- name: Configure Apache to forward http traffic to etherpad-lite
+  template: src=etc_apache2_sites-available_etherpad.conf.j2 dest=/etc/apache2/sites-available/etherpad-lite.conf
+
+- name: Enable the etherpad site
+  command: a2ensite etherpad-lite.conf creates=/etc/apache2/sites-enabled/etherpad-lite.conf
+  notify: restart apache

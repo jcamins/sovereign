@@ -124,3 +124,12 @@ wallabag_domain: "read.{{ domain }}"
 wallabag_db_username: wallabag
 # wallabag_db_password: (required)
 wallabag_db_database: wallabag
+
+# etherpad
+etherpad_domain: "etherpad.{{ domain }}"
+etherpad_db_database: etherpad
+etherpad_db_username: etherpad
+#etherpad_db_password: (required)
+etherpad_username: "{{ main_user_name }}"
+#etherpad_password: (required)
+#etherpad_session_key: (required)

@@ -23,4 +23,5 @@
     - git
     - newebe
     - readlater
+    - etherpad-lite
     - monitoring  # Monitoring role should be last. See roles/monitoring/README.md
