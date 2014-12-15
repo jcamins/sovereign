@@ -24,6 +24,7 @@
 #   - newebe
 #   - readlater
 #   - redmine
+    - jekyll
     - etherpad-lite
     - paste
     - monitoring  # Monitoring role should be last. See roles/monitoring/README.md

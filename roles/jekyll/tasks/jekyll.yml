@@ -1,0 +1,12 @@
+---
+# This playbook sets up jekyll on a server.
+
+- name: Install dependencies
+  apt: pkg={{ item }} state=installed update_cache=yes
+  with_items:
+  - python-pygments
+  - imagemagick
+  - libmagick-dev
+
+- name: Install jekyll
+  command: gem install jekyll creates=/usr/local/bin/jekyll
