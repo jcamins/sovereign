@@ -9,4 +9,4 @@
   - libmagick-dev
 
 - name: Install jekyll
-  command: gem install jekyll creates=/usr/local/bin/jekyll
+  gem: name=jekyll state=latest user_install=no
