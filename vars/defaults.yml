@@ -140,3 +140,12 @@ paste_db_database: paste
 paste_db_username: paste
 #paste_db_password: (required)
 #paste_salt: (required)
+
+# redmine
+redmine_version: 2.6.0
+redmine_domain: "projects.{{ domain }}"
+redmine_system_username: redmine
+redmine_db_database: redmine
+redmine_db_username: redmine
+#redmine_db_password: (required)
+redmine_language: en

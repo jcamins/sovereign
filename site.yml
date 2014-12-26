@@ -23,7 +23,8 @@
     - git
 #   - newebe
 #   - readlater
-#   - redmine
+    - redmine
+#   - semantic-mediawiki
     - jekyll
     - etherpad-lite
     - paste
