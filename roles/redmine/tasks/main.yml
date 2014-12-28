@@ -2,3 +2,4 @@
 
 - include: redmine.yml tags=redmine
 
+- include: git_hosting.yml tags=redmine

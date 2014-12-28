@@ -2,7 +2,7 @@
 # This playbook heavily based on https://github.com/amree/ansible-redmine and https://github.com/dpausp/ansible-playbook-redmine
 
 - name: Create Redmine user
-  user: name={{ redmine_system_username }} home=/var/lib/redmine state=present
+  user: name=redmine home=/var/lib/redmine generate_ssh_key=yes state=present
 
 - name: Install system packages required for Redmine
   apt: pkg={{ item }} state=present
@@ -10,9 +10,12 @@
   - libapache2-mod-passenger
   - libpq-dev
   - imagemagick
+  - libicu-dev
   - libmagickwand-dev
   - libxslt1-dev
   - libxml2-dev
+  - liblockfile-ruby
+  - libnet-ssh2-ruby
 
 - name: Install bundler
   gem: name=bundler state=latest user_install=no
@@ -27,19 +30,19 @@
   postgresql_db: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ redmine_db_database }} owner={{ redmine_db_username }} state=present
 
 - name: Install Redmine configuration file
-  template: src=config_configuration.yml.j2 dest=/usr/share/redmine/config/configuration.yml mode=0644 owner={{ redmine_system_username }}
+  template: src=config_configuration.yml.j2 dest=/usr/share/redmine/config/configuration.yml mode=0644 owner=redmine
 
 - name: Install Redmine database configuration
-  template: src=config_database.yml.j2 dest=/usr/share/redmine/config/database.yml mode=0644 owner={{ redmine_system_username }}
+  template: src=config_database.yml.j2 dest=/usr/share/redmine/config/database.yml mode=0644 owner=redmine
 
 - name: Configure logs
-  template: src=config_additional_environment.rb.j2 dest=/usr/share/redmine/config/additional_environment.rb mode=0644 owner={{ redmine_system_username }}
+  template: src=config_additional_environment.rb.j2 dest=/usr/share/redmine/config/additional_environment.rb mode=0644 owner=redmine
 
 - name: Create log files
-  file: path=/var/log/{{ item }} mode=0644 owner={{ redmine_system_username }} state=touch
+  file: path=/var/log/{{ item }} mode=0644 owner=redmine state=touch
   with_items:
-    - redmine.log
-    - redmine_scm_stderr.log
+  - redmine.log
+  - redmine_scm_stderr.log
 
 - name: Install required gems for Redmine
   command: /usr/local/bin/bundle install --without development test chdir=/usr/share/redmine
@@ -58,15 +61,15 @@
     RAILS_ENV: production
     REDMINE_LANG: "{{ redmine_language }}"
 
-- name: Change directory ownership
-  file: path=/usr/share/redmine owner={{ redmine_system_username }} recurse=yes
+- name: Change config.ru ownership
+  file: path=/usr/share/redmine/config.ru owner=redmine
 
 - name: Change directory permissions
-  file: path=/usr/share/redmine/{{ item }} owner={{ redmine_system_username }} mode=755 state=directory
+  file: path=/usr/share/redmine/{{ item }} owner=redmine mode=755 state=directory
   with_items:
-    - public/plugin_assets
-    - tmp
-    - tmp/pdf
+  - public/plugin_assets
+  - tmp
+  - tmp/pdf
 
 - name: Configure the Apache HTTP server for Redmine
   template: src=etc_apache2_sites-available_redmine.j2 dest=/etc/apache2/sites-available/redmine.conf group=root owner=root

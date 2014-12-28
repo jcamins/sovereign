@@ -144,8 +144,9 @@ paste_db_username: paste
 # redmine
 redmine_version: 2.6.0
 redmine_domain: "projects.{{ domain }}"
-redmine_system_username: redmine
 redmine_db_database: redmine
 redmine_db_username: redmine
 #redmine_db_password: (required)
 redmine_language: en
+redmine_git_hosting_version: 0.7.8
+

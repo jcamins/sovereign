@@ -1,0 +1,52 @@
+---
+# Install the git_hosting plugin
+
+- name: Get bootstrap-kit Redmine plugin
+  git: repo=https://github.com/jbox-web/redmine_bootstrap_kit.git dest=/usr/share/redmine/plugins/redmine_bootstrap_kit
+
+- name: Get git_hosting plugin
+  git: repo=https://github.com/jbox-web/redmine_git_hosting.git dest=/usr/share/redmine/plugins/redmine_git_hosting version={{ redmine_git_hosting_version }}
+
+- name: Install required gems for Redmine
+  command: /usr/local/bin/bundle install --without development test chdir=/usr/share/redmine
+
+- name: Run plugin migration
+  command: /usr/local/bin/rake redmine:plugins:migrate chdir=/usr/share/redmine
+  environment:
+    RAILS_ENV: production
+    NAME: redmine_git_hosting
+  notify: restart apache
+
+- name: Copy SSH keys for Redmine to git hosting plugin
+  file: src=/var/lib/redmine/.ssh/id_rsa{{ item }} dest=/usr/share/redmine/plugins/redmine_git_hosting/ssh_keys/redmine_gitolite_admin_id_rsa{{ item }} owner=redmine state=hard
+  with_items:
+  - ""
+  - ".pub"
+
+- name: Copy SSH public key for Redmine to gitolite
+  file: src=/var/lib/redmine/.ssh/id_rsa.pub dest=/home/git/redmine_gitolite_admin_id_rsa.pub owner=git group=git mode=0644 state=hard
+
+- name: Install sudoers file for redmine and git
+  template: src=etc_sudoers.d_redmine-gitolite.j2 dest=/etc/sudoers.d/redmine-gitolite mode=0440 owner=root group=root
+
+- name: Create log files for git_hosting
+  file: path=/usr/share/redmine/log/git_hosting.log mode=0644 owner=redmine state=touch
+
+- name: Change ownership of git_hosting directories
+  file: path=/usr/share/redmine/plugins/redmine_git_hosting/bin mode=0755 owner=redmine state=directory recurse=yes
+
+- name: Create known_hosts file for redmine
+  file: path=/var/lib/redmine/.ssh/known_hosts mode=0644 owner=redmine state=touch
+
+- name: Add localhost as known host for redmine
+  shell: 'grep -qE "`ssh-keyscan localhost`" /var/lib/redmine/.ssh/known_hosts || ssh-keyscan localhost >> /var/lib/redmine/.ssh/known_hosts'
+  sudo: yes
+  sudo_user: redmine
+
+- name: Copy script to add redmine permissions to gitolite
+  copy: src=add_redmine_to_gitolite.pl dest=/tmp/add_redmine_to_gitolite mode=0755
+
+- name: Add redmine permissions to gitolite
+  command: /tmp/add_redmine_to_gitolite
+  sudo: yes
+  sudo_user: git
