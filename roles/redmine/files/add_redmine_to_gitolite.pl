@@ -9,7 +9,7 @@ use Sys::Hostname;
 my $fh;
 my $hostname = hostname;
 
-my $dir = tempdir();
+my $dir = tempdir(CLEANUP => 1);
 system("git clone /home/git/repositories/gitolite-admin.git $dir");
 chdir "$dir";
 
