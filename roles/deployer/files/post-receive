@@ -1,0 +1,57 @@
+#!/bin/bash
+
+PROJECT=$(basename "$PWD")
+
+while read oldrev newrev refname
+do
+    export GIT_WORK_TREE=`mktemp -d`
+    SITE_TREE=`mktemp -d`
+    CURRENT_BRANCH=$(git rev-parse --symbolic --abbrev-ref $refname)
+
+    git checkout -f ${CURRENT_BRANCH}
+
+    cd $GIT_WORK_TREE
+
+    if [ ! -f .deploy.yml ]; then
+        exit 0
+    fi
+
+    DEPLOY_BRANCH=$(shyaml get-value deploy.branch < .deploy.yml)
+    DEPLOY_TYPE=$(shyaml get-value deploy.type < .deploy.yml)
+    DEPLOY_PATH=$(shyaml get-value deploy.path < .deploy.yml)
+    DEPLOY_USER=$(shyaml get-value deploy.user < .deploy.yml)
+    DEPLOY_HOST=$(shyaml get-value deploy.host < .deploy.yml)
+
+    if [ "${DEPLOY_BRANCH}" != "${CURRENT_BRANCH}" ]; then
+        echo "Current branch: ${CURRENT_BRANCH} does not match deploy branch: ${DEPLOY_BRANCH}. Skipping."
+        exit 0
+    fi 
+
+    if [ -z "${DEPLOY_PATH}" ]; then
+        echo "No deploy path set. Skipping."
+        exit 0
+    fi
+
+
+
+    if [ "${DEPLOY_TYPE}" == "jekyll" ]; then
+        jekyll build --destination ${SITE_TREE}
+    else
+        rm -Rf ${SITE_TREE}
+        SITE_TREE=${GIT_WORK_TREE}
+    fi
+
+    if [ -n "${DEPLOY_HOST}" ]; then
+        RSYNC_RSH="--rsh=ssh"
+
+        if [ -n "$DEPLOY_USER" ]; then
+            RSYNC_HOST="${DEPLOY_USER}@${DEPLOY_HOST}:"
+        else
+            RSYNC_HOST="${DEPLOY_HOST}:"
+        fi
+    fi
+    echo "Deploying ${PROJECT} to ${RSYNC_HOST}${DEPLOY_PATH}"
+    rsync -a --delete ${RSYNC_RSH} ${SITE_TREE}/ ${RSYNC_HOST}${DEPLOY_PATH}
+    rm -R ${SITE_TREE}
+    rm -R ${GIT_WORK_TREE}
+done 

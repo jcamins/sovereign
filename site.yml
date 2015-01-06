@@ -26,6 +26,7 @@
     - redmine
 #   - semantic-mediawiki
     - jekyll
+    - deployer
     - etherpad-lite
     - paste
     - monitoring  # Monitoring role should be last. See roles/monitoring/README.md

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+REPO=`mktemp -d`
+git clone /home/git/repositories/gitolite-admin.git $REPO
+cd $REPO
+if ! grep -qE 'repo\s*@all' conf/gitolite.conf; then
+cat << ALL >> conf/gitolite.conf
+repo @all
+  RW+   = {{ main_user_name }}
+ALL
+git add conf/gitolite.conf
+git commit --author="git on `hostname` <git@`hostname`>" -m 'Give main user RW on all repos'
+gitolite push;
+fi
+cd ..
+rm -Rf $REPO

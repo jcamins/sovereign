@@ -1,0 +1,28 @@
+---
+# Defines tasks applicable for deployer system
+
+- name: Install deployer dependencies
+  apt: pkg={{ item }} state=present
+  with_items:
+    - python-yaml
+
+- name: Install shyaml
+  copy: src=usr_local_bin_shyaml dest=/usr/local/bin/shyaml mode=0755
+
+- name: Create post-receive.d directory
+  file: path=/home/git/.gitolite/hooks/common/post-receive.d state=directory owner=git group=git
+
+- name: Install post-receive hook
+  copy: src=post-receive dest=/home/git/.gitolite/hooks/common/post-receive.d/deployer owner=git group=git mode=0755
+
+- name: Reconfigure gitolite
+  command: su - git -c 'gitolite setup'
+           chdir=/home/git
+
+- name: Copy script to give primary user write functionality on all git repos
+  template: src=give_user_rw_on_all.j2 dest=/tmp/give_user_rw_on_all mode=0755
+
+- name: Give primary user RW on all git repos
+  command: /tmp/give_user_rw_on_all
+  sudo: yes
+  sudo_user: git

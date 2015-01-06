@@ -112,7 +112,7 @@ selfoss_db_database: selfoss
 # git
 cgit_version: 0.10.1
 cgit_domain: "git.{{ domain }}"
-gitolite_version: 3.5.3.1
+gitolite_version: 3.6.2
 
 # newebe
 newebe_domain: "newebe.{{ domain }}"
