@@ -12,7 +12,6 @@ default:
   # Outgoing emails configuration
   # See the examples below and the Rails guide for more configuration options:
   # http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
-  email_delivery:
 
   # ==== Simple SMTP server at localhost
   #
@@ -63,8 +62,8 @@ default:
   #
   # ==== Sendmail command
   #
-  #  email_delivery:
-  #    delivery_method: :sendmail
+  email_delivery:
+    delivery_method: :sendmail
 
   # Absolute path to the directory where attachments are stored.
   # The default is the 'files' directory in your Redmine instance.

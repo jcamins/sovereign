@@ -1,0 +1,6 @@
+#!/bin/sh
+#GET_API_KEY="/usr/share/redmine/script/rails runner -e production 'user = User.find_by_login(\"redmine@{{ redmine_domain }}\") || User.new({:firstname=>\"Email\",:lastname=>\"User\",:mail=>\"redmine@{{ redmine_domain }}\"}); user.login=\"redmine@{{ redmine_domain }}\"; user.save; puts user.api_key'"
+API_KEY=`pwgen 20 1`
+grep -q "^redmine:" /etc/aliases && exit
+/usr/share/redmine/script/rails runner -e production "Setting.mail_handler_api_enabled=1; Setting.mail_handler_api_key='${API_KEY}';"
+echo "redmine: \"|/usr/local/bin/redmine-sub-mailhandler.py --email redmine@{{ redmine_domain }} -- ruby /usr/share/redmine/extra/mail_handler/rdm-mailhandler.rb --url https://{{ redmine_domain }} --allow-override project,tracker,category,priority,status --no-check-certificate --key ${API_KEY}\"" >> /etc/aliases

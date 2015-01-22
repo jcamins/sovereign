@@ -16,6 +16,7 @@
   - libxml2-dev
   - liblockfile-ruby
   - libnet-ssh2-ruby
+  - pwgen
 
 - name: Install bundler
   gem: name=bundler state=latest user_install=no
@@ -70,6 +71,38 @@
   - public/plugin_assets
   - tmp
   - tmp/pdf
+
+- name: Install redmine mail handler
+  copy: src=sub-mailhandler.py dest=/usr/local/bin/sub-mailhandler.py
+
+- name: Configure inet_interfaces to accept mail for Redmine
+  lineinfile: dest=/etc/postfix/main.cf regexp="^mydestination" line="mydestination = {{ redmine_domain }} localhost $mydomain" state=present
+  notify: restart postfix
+
+- name: Configure postfix to forward mail only from localhost (part 1)
+  lineinfile: dest=/etc/postfix/main.cf regexp="^mynetworks_style" line="mynetworks_style = host" state=present insertafter="^relayhost"
+  notify: restart postfix
+
+- name: Configure postfix to forward mail only from localhost (part 2)
+  lineinfile: dest=/etc/postfix/main.cf regexp="^mynetworks =" state=absent
+  notify: restart postfix
+
+- name: Configure postfix to accept mail on all interfaces
+  lineinfile: dest=/etc/postfix/main.cf regexp="^inet_interfaces" line="inet_interfaces = all" state=present
+  notify: restart postfix
+
+- name: Install redmine subaddress handler script
+  copy: src=sub-mailhandler.py dest=/usr/local/bin/redmine-sub-mailhandler.py mode=755
+
+- name: Copy script for generating API key
+  template: src=create_redmine_mail_alias.j2 dest=/tmp/create_redmine_mail_alias mode=755
+
+- name: Create Redmine e-mail dispatcher alias
+  command: /tmp/create_redmine_mail_alias
+
+- name: Update Postfix aliases
+  command: /usr/bin/newaliases
+  notify: restart postfix
 
 - name: Configure the Apache HTTP server for Redmine
   template: src=etc_apache2_sites-available_redmine.j2 dest=/etc/apache2/sites-available/redmine.conf group=root owner=root
