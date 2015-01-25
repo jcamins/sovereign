@@ -5,18 +5,31 @@
   user: name=redmine home=/var/lib/redmine generate_ssh_key=yes state=present
 
 - name: Install system packages required for Redmine
-  apt: pkg={{ item }} state=present
+  apt: pkg={{ item }} state=installed
   with_items:
   - libapache2-mod-passenger
   - libpq-dev
   - imagemagick
   - libicu-dev
+  - libmagickcore-dev
   - libmagickwand-dev
   - libxslt1-dev
   - libxml2-dev
+  - pwgen
+
+- name: Install Ruby packages required for Redmine
+  apt: pkg={{ item }} state=installed
+  with_items:
   - liblockfile-ruby
   - libnet-ssh2-ruby
-  - pwgen
+  when: ansible_distribution_release != 'trusty'
+
+- name: Install Ruby packages required for Redmine for Ubuntu Trusty
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - ruby-lockfile
+  - ruby-net-ssh
+  when: ansible_distribution_release == 'trusty'
 
 - name: Install bundler
   gem: name=bundler state=latest user_install=no
