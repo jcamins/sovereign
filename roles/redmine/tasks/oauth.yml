@@ -1,0 +1,6 @@
+- name: Get omniauth_google plugin
+  git: repo=https://github.com/twinslash/redmine_omniauth_google.git dest=/usr/share/redmine/plugins/redmine_omniauth_google
+
+- name: Install required gems for Redmine
+  command: /usr/local/bin/bundle install --without development test chdir=/usr/share/redmine
+  notify: restart apache
